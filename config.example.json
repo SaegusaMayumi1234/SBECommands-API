@@ -1,7 +1,7 @@
 {
-  "apikey": "",
-  "token": "",
+  "env": "development",
   "port": 3000,
   "proxied": false,
+  "apikey": "",
   "redis": ""
 }

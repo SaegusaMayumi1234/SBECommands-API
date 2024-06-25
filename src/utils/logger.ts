@@ -195,14 +195,7 @@ function log(data: Array<unknown>, level: keyof typeof logFile) {
   }
   // WRITE LOG
   console.log(util.format('%s:%s:%s.%s GMT > %s', hour, minute, second, millisecond, levelColor[level as keyof typeof levelColor]), ...data);
-  saveCombined(
-    hour,
-    minute,
-    second,
-    millisecond,
-    level,
-    data,
-  );
+  saveCombined(hour, minute, second, millisecond, level, data);
 }
 
 export function error(...data: Array<unknown>) {
