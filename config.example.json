@@ -1,0 +1,7 @@
+{
+  "apikey": "",
+  "token": "",
+  "port": 3000,
+  "proxied": false,
+  "redis": ""
+}
