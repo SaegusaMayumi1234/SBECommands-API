@@ -45,7 +45,6 @@ const levelSpace = {
 };
 
 function removeANSIFormatting(string: string) {
-  // eslint-disable-next-line no-control-regex
   return string.replace(
     // eslint-disable-next-line no-control-regex
     /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
@@ -53,7 +52,7 @@ function removeANSIFormatting(string: string) {
   );
 }
 
-function getUTCObjectDate(date: Date, format: Boolean) {
+function getUTCObjectDate(date: Date, format: boolean) {
   const yearNum = date.getUTCFullYear();
   const monthNum = date.getUTCMonth() + 1;
   const dayNum = date.getUTCDate();
@@ -106,28 +105,28 @@ function selectLogFile(date: Date, level: keyof typeof logFile) {
   if (!fs.existsSync(logDir)) {
     try {
       fs.mkdirSync(util.format(logDir));
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error) console.log(error);
     }
   }
   if (!fs.existsSync(yearPath)) {
     try {
       fs.mkdirSync(util.format(yearPath));
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error) console.log(error);
     }
   }
   if (!fs.existsSync(monthPath)) {
     try {
       fs.mkdirSync(util.format(monthPath));
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error) console.log(error);
     }
   }
   if (!fs.existsSync(dayPath)) {
     try {
       fs.mkdirSync(util.format(dayPath));
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error) console.log(error);
     }
   }
@@ -136,7 +135,7 @@ function selectLogFile(date: Date, level: keyof typeof logFile) {
   logFile[level] = fs.openSync(path, 'as');
 }
 
-function saveCombined(data: any) {
+function saveCombined(hour: string, minute: string, second: string, millisecond: string, dataLevel: keyof typeof logFile, data: Array<unknown>) {
   const level = 'all';
   if (logFile[level] === undefined) selectLogFile(startDate[level], level);
   const currentDate = new Date();
@@ -146,19 +145,18 @@ function saveCombined(data: any) {
     fs.closeSync(logFile[level]!);
     selectLogFile(startDate[level], level);
   }
-  const { hour, minute, second, millisecond } = getUTCObjectDate(currentDate, true);
   // WRITE FILE
   const result = fs.writeSync(
     logFile[level]!,
     removeANSIFormatting(
       util.format(
-        `%s:%s:%s.%s GMT > %s%s${' %s'.repeat(data.data.length - 1)}\n`,
-        data.hour,
-        data.minute,
-        data.second,
-        data.millisecond,
-        levelSpace[data.level as keyof typeof levelSpace],
-        util.inspect(data.data, { showHidden: false, depth: null, colors: false }),
+        `%s:%s:%s.%s GMT > %s%s${' %s'.repeat(data.length - 1)}\n`,
+        hour,
+        minute,
+        second,
+        millisecond,
+        levelSpace[dataLevel as keyof typeof levelSpace],
+        util.inspect(data, { showHidden: false, depth: null, colors: false }),
       ),
     ),
   );
@@ -167,7 +165,7 @@ function saveCombined(data: any) {
   }
 }
 
-function log(data: any, level: keyof typeof logFile) {
+function log(data: Array<unknown>, level: keyof typeof logFile) {
   if (logFile[level] === undefined) selectLogFile(startDate[level], level);
   const currentDate = new Date();
 
@@ -197,32 +195,32 @@ function log(data: any, level: keyof typeof logFile) {
   }
   // WRITE LOG
   console.log(util.format('%s:%s:%s.%s GMT > %s', hour, minute, second, millisecond, levelColor[level as keyof typeof levelColor]), ...data);
-  saveCombined({
+  saveCombined(
     hour,
     minute,
     second,
     millisecond,
     level,
     data,
-  });
+  );
 }
 
-export function error(...data: any) {
+export function error(...data: Array<unknown>) {
   log(data, 'error');
 }
 
-export function warn(...data: any) {
+export function warn(...data: Array<unknown>) {
   log(data, 'warn');
 }
 
-export function info(...data: any) {
+export function info(...data: Array<unknown>) {
   log(data, 'info');
 }
 
-export function game(...data: any) {
+export function game(...data: Array<unknown>) {
   log(data, 'game');
 }
 
-export function debug(...data: any) {
+export function debug(...data: Array<unknown>) {
   log(data, 'debug');
 }
