@@ -1,33 +1,25 @@
 import Joi from 'joi';
+import config from '../../config.json';
 
-const envSchema = Joi.object()
+const configSchema = Joi.object()
   .keys({
-    NODE_ENV: Joi.string().valid('production', 'development').required(),
-    PORT: Joi.number().min(1024).max(65535).default(3000),
-    PROXIED: [Joi.boolean().invalid(true).required(), Joi.number().required()],
-    MONGODB_URI: Joi.string()
-      .uri({ scheme: ['mongodb', 'mongodb+srv'] })
-      .required(),
-    MONGODB_NAME: Joi.string().required(),
-    JWT_SECRET: Joi.string().required(),
+    port: Joi.number().min(1024).max(65535).default(3000),
+    proxied: [Joi.boolean().invalid(true).required(), Joi.number().required()],
+    apikey: Joi.string().guid().required(),
+    redis: Joi.string().uri({
+      scheme: ['redis']
+    }).required()
   })
   .unknown();
 
-const { value: envVars, error } = envSchema.prefs({ errors: { label: 'key' } }).validate(process.env);
+const validationResult = configSchema.prefs({ errors: { label: 'key' } }).validate(config);
 
-if (error) {
-  throw new Error(`Config validation error: ${error.message}`);
+if (validationResult.error) {
+  const error = new Error(validationResult.error.message);
+  error.name = 'Config Validation Error';
+  throw error;
 }
 
 export default {
-  env: envVars.NODE_ENV,
-  port: envVars.PORT,
-  proxied: envVars.PROXIED,
-  mongodb: {
-    uri: envVars.MONGODB_URI,
-    name: envVars.MONGODB_NAME,
-  },
-  jwt: {
-    secret: envVars.JWT_SECRET,
-  },
+  ...config,
 };
