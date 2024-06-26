@@ -23,6 +23,8 @@ if (validationResult.error) {
   throw error;
 }
 
+process.env['NODE_ENV'] = config.env;
+
 export default {
   ...config,
 };
