@@ -1,5 +1,4 @@
 import winston from 'winston';
-import ansiRegex from 'ansi-regex';
 import chalk from 'chalk';
 import { SPLAT } from 'triple-beam';
 import fs from 'fs';
@@ -44,14 +43,12 @@ function getFormat() {
     winston.format.errors({ stack: true }),
     winston.format.timestamp(),
     winston.format.printf((info) => {
-      const splat = info[SPLAT] || [];
-      const alignSpace = ' '.repeat(longestStr - info.level.replace(ansiRegex(), '').length);
       if (info.level === 'error') {
-        console.error(info.timestamp, `${colorizeLevel(info.level)}:${alignSpace}`, ...splat);
+        console.error(info.timestamp, `${colorizeLevel(info.level)}:${' '.repeat(longestStr - info.level.length)}`, ...(info[SPLAT] || []));
       } else {
-        console.log(info.timestamp, `${colorizeLevel(info.level)}:${alignSpace}`, ...splat);
+        console.log(info.timestamp, `${colorizeLevel(info.level)}:${' '.repeat(longestStr - info.level.length)}`, ...(info[SPLAT] || []));
       }
-      return `${info.timestamp} ${info.level}:${alignSpace} ${info.message}`;
+      return `${info.timestamp} ${info.level}:${' '.repeat(longestStr - info.level.length)} ${info.message}`;
     }),
   );
 }
