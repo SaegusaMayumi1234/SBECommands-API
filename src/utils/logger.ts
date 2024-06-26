@@ -1,219 +1,120 @@
-import fs from 'fs';
-import util from 'util';
+import winston from 'winston';
+import ansiRegex from 'ansi-regex';
 import chalk from 'chalk';
+import { SPLAT } from 'triple-beam';
+import fs from 'fs';
+import 'winston-daily-rotate-file';
 
-interface logLevelType {
-  error?: number;
-  warn?: number;
-  info?: number;
-  game?: number;
-  debug?: number;
-  all?: number;
-}
-
-const logDir = './logs';
 const monthToNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const startDate = {
-  error: new Date(),
-  warn: new Date(),
-  info: new Date(),
-  game: new Date(),
-  debug: new Date(),
-  all: new Date(),
+const levels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  debug: 4,
 };
-const logFile: logLevelType = {
-  error: undefined,
-  warn: undefined,
-  info: undefined,
-  game: undefined,
-  debug: undefined,
-  all: undefined,
-};
-const levelColor = {
-  error: `${chalk.redBright('error')}:`,
-  warn: `${chalk.yellowBright('warn')}: `,
-  info: `${chalk.white('info')}: `,
-  game: `${chalk.greenBright('game')}: `,
-  debug: `${chalk.cyanBright('debug')}:`,
-};
-const levelSpace = {
-  error: 'error: ',
-  warn: 'warn:  ',
-  info: 'info:  ',
-  game: 'game:  ',
-  debug: 'debug: ',
-};
+const longestStr = Math.max(...Object.keys(levels).map((key) => key.length));
 
-function removeANSIFormatting(string: string) {
-  return string.replace(
-    // eslint-disable-next-line no-control-regex
-    /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-    '',
+function colorizeLevel(level: string) {
+  let res = level;
+  switch (level) {
+    case 'error':
+      res = chalk.red(level);
+      break;
+    case 'warn':
+      res = chalk.yellow(level);
+      break;
+    case 'info':
+      res = chalk.green(level);
+      break;
+    case 'http':
+      res = chalk.magenta(level);
+      break;
+    case 'debug':
+      res = chalk.cyan(level);
+      break;
+    default:
+      break;
+  }
+  return res;
+}
+
+function getFormat() {
+  return winston.format.combine(
+    winston.format.errors({ stack: true }),
+    winston.format.timestamp(),
+    winston.format.printf((info) => {
+      const splat = info[SPLAT] || [];
+      const alignSpace = ' '.repeat(longestStr - info.level.replace(ansiRegex(), '').length);
+      if (info.level === 'error') {
+        console.error(info.timestamp, `${colorizeLevel(info.level)}:${alignSpace}`, ...splat);
+      } else {
+        console.log(info.timestamp, `${colorizeLevel(info.level)}:${alignSpace}`, ...splat);
+      }
+      return `${info.timestamp} ${info.level}:${alignSpace} ${info.message}`;
+    }),
   );
 }
 
-function getUTCObjectDate(date: Date, format: boolean) {
-  const yearNum = date.getUTCFullYear();
-  const monthNum = date.getUTCMonth() + 1;
-  const dayNum = date.getUTCDate();
-  const hourNum = date.getUTCHours();
-  const minuteNum = date.getUTCMinutes();
-  const secondNum = date.getUTCSeconds();
-  const millisecondNum = date.getUTCMilliseconds();
-
-  const year = `${yearNum}`;
-  let month = `${monthNum}`;
-  let day = `${dayNum}`;
-  let hour = `${hourNum}`;
-  let minute = `${minuteNum}`;
-  let second = `${secondNum}`;
-  let millisecond = `${millisecondNum}`;
-
-  if (format === true) {
-    if (monthNum < 10) {
-      month = `0${month}`;
-    }
-    if (dayNum < 10) {
-      day = `0${day}`;
-    }
-    if (hourNum < 10) {
-      hour = `0${hour}`;
-    }
-    if (minuteNum < 10) {
-      minute = `0${minute}`;
-    }
-    if (secondNum < 10) {
-      second = `0${second}`;
-    }
-    if (millisecondNum < 10) {
-      millisecond = `0${millisecond}`;
-    }
-    if (millisecondNum < 100) {
-      millisecond = `0${millisecond}`;
-    }
-  }
-  return { year, month, day, hour, minute, second, millisecond };
+function getDirName() {
+  const currDate = new Date();
+  return `${currDate.getUTCFullYear()}/${('0' + (currDate.getUTCMonth() + 1)).slice(-2)}-${monthToNames[currDate.getUTCMonth()]}`;
 }
 
-function selectLogFile(date: Date, level: keyof typeof logFile) {
-  const { year, month, day } = getUTCObjectDate(date, true);
-  const monthName = monthToNames[date.getUTCMonth()];
-  const yearPath = util.format('%s/%s', logDir, year);
-  const monthPath = util.format('%s/%s/%s', logDir, year, monthName);
-  const dayPath = util.format('%s/%s/%s/%s', logDir, year, monthName, day);
-
-  if (!fs.existsSync(logDir)) {
-    try {
-      fs.mkdirSync(util.format(logDir));
-    } catch (error: unknown) {
-      if (error) console.log(error);
-    }
-  }
-  if (!fs.existsSync(yearPath)) {
-    try {
-      fs.mkdirSync(util.format(yearPath));
-    } catch (error: unknown) {
-      if (error) console.log(error);
-    }
-  }
-  if (!fs.existsSync(monthPath)) {
-    try {
-      fs.mkdirSync(util.format(monthPath));
-    } catch (error: unknown) {
-      if (error) console.log(error);
-    }
-  }
-  if (!fs.existsSync(dayPath)) {
-    try {
-      fs.mkdirSync(util.format(dayPath));
-    } catch (error: unknown) {
-      if (error) console.log(error);
-    }
-  }
-
-  const path = util.format('%s/%s/%s/%s/%s-%s-%s-%s.log', logDir, year, monthName, day, year, month, day, level);
-  logFile[level] = fs.openSync(path, 'as');
+function createNewDailyRotateFile(type: string, level?: string) {
+  return new winston.transports.DailyRotateFile({
+    dirname: `logs/${getDirName()}`,
+    filename: `%DATE%-log-${type}`,
+    datePattern: 'YYYY-MM-DD',
+    level: level,
+    extension: '.log',
+    utc: true,
+  });
 }
 
-function saveCombined(hour: string, minute: string, second: string, millisecond: string, dataLevel: keyof typeof logFile, data: Array<unknown>) {
-  const level = 'all';
-  if (logFile[level] === undefined) selectLogFile(startDate[level], level);
-  const currentDate = new Date();
+let transportAll = createNewDailyRotateFile('all', 'debug');
 
-  if (currentDate.getUTCDate() !== startDate[level].getUTCDate()) {
-    startDate[level] = currentDate;
-    fs.closeSync(logFile[level]!);
-    selectLogFile(startDate[level], level);
+let transportError = createNewDailyRotateFile('error', 'error');
+
+transportAll.on('rotate', () => {
+  if (!fs.existsSync(`logs/${getDirName()}/`)) {
+    transportAll = createNewDailyRotateFile('all', 'debug');
   }
-  // WRITE FILE
-  const result = fs.writeSync(
-    logFile[level]!,
-    removeANSIFormatting(
-      util.format(
-        `%s:%s:%s.%s GMT > %s%s${' %s'.repeat(data.length - 1)}\n`,
-        hour,
-        minute,
-        second,
-        millisecond,
-        levelSpace[dataLevel as keyof typeof levelSpace],
-        util.inspect(data, { showHidden: false, depth: null, colors: false }),
-      ),
-    ),
-  );
-  if (!result || result < 1) {
-    console.log(util.format('%s:%s:%s.%s GMT > %s -', hour, minute, second, millisecond, `Error trying to write in ${logFile[level]}`));
+});
+
+transportError.on('rotate', () => {
+  if (!fs.existsSync(`logs/${getDirName()}/`)) {
+    transportError = createNewDailyRotateFile('error', 'error');
   }
+});
+
+const transports = [transportError, transportAll];
+
+const logger = winston.createLogger({
+  level: process.env.NODE_ENV === 'development' ? 'debug' : 'http',
+  levels,
+  format: getFormat(),
+  transports,
+});
+
+function formatLog(data: Array<any>) {
+  return data.map((value) => (value instanceof Error ? value.stack : value)).join(' ');
 }
 
-function log(data: Array<unknown>, level: keyof typeof logFile) {
-  if (logFile[level] === undefined) selectLogFile(startDate[level], level);
-  const currentDate = new Date();
-
-  if (currentDate.getUTCDate() !== startDate[level].getUTCDate()) {
-    startDate[level] = currentDate;
-    fs.closeSync(logFile[level]!);
-    selectLogFile(startDate[level], level);
-  }
-  const { hour, minute, second, millisecond } = getUTCObjectDate(currentDate, true);
-  // WRITE FILE
-  const result = fs.writeSync(
-    logFile[level]!,
-    removeANSIFormatting(
-      util.format(
-        `%s:%s:%s.%s GMT > %s%s${' %s'.repeat(data.length - 1)}\n`,
-        hour,
-        minute,
-        second,
-        millisecond,
-        levelSpace[level as keyof typeof levelSpace],
-        util.inspect(data, { showHidden: false, depth: null, colors: false }),
-      ),
-    ),
-  );
-  if (!result || result < 1) {
-    console.log(util.format('%s:%s:%s.%s GMT > %s -', hour, minute, second, millisecond, `Error trying to write in ${logFile[level]}`));
-  }
-  // WRITE LOG
-  console.log(util.format('%s:%s:%s.%s GMT > %s', hour, minute, second, millisecond, levelColor[level as keyof typeof levelColor]), ...data);
-  saveCombined(hour, minute, second, millisecond, level, data);
-}
-
-export function error(...data: Array<unknown>) {
-  log(data, 'error');
-}
-
-export function warn(...data: Array<unknown>) {
-  log(data, 'warn');
-}
-
-export function info(...data: Array<unknown>) {
-  log(data, 'info');
-}
-
-export function game(...data: Array<unknown>) {
-  log(data, 'game');
-}
-
-export function debug(...data: Array<unknown>) {
-  log(data, 'debug');
-}
+export default {
+  error: (...data: Array<unknown>) => {
+    logger.error(formatLog(data), ...data);
+  },
+  warn: (...data: Array<unknown>) => {
+    logger.warn(formatLog(data), ...data);
+  },
+  info: (...data: Array<unknown>) => {
+    logger.info(formatLog(data), ...data);
+  },
+  http: (...data: Array<unknown>) => {
+    logger.http(formatLog(data), ...data);
+  },
+  debug: (...data: Array<unknown>) => {
+    logger.debug(formatLog(data), ...data);
+  },
+};

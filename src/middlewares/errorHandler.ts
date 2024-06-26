@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 
-import * as logger from '../utils/logger';
+import logger from '../utils/logger';
 import config from '../config/config';
 import ApiError from '../utils/apiError';
 

@@ -1,4 +1,4 @@
-import * as logger from './logger';
+import logger from './logger';
 
 process.on('unhandledRejection', (reason: unknown) => {
   logger.error('Unhandled Rejection:', reason);
