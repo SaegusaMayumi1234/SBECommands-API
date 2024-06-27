@@ -12,6 +12,19 @@ const configSchema = Joi.object()
         scheme: ['redis'],
       })
       .required(),
+    axiosCache: Joi.object()
+      .keys({
+        hypixelTTL: Joi.number().min(0),
+        mojangTTL: Joi.number().min(0),
+      })
+      .unknown(),
+    rateLimit: Joi.object()
+      .keys({
+        windowMs: Joi.number().min(0),
+        generalSBECommands: Joi.number().min(0),
+        pcheckSBECommands: Joi.number().min(0),
+      })
+      .unknown(),
   })
   .unknown();
 

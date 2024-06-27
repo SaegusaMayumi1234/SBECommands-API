@@ -3,5 +3,14 @@
   "port": 3000,
   "proxied": false,
   "apikey": "",
-  "redis": ""
+  "redis": "",
+  "axiosCache": {
+    "hypixelTTL": 0,
+    "mojangTTL": 0
+  },
+  "rateLimit": {
+    "windowMs": 0,
+    "generalSBECommands": 0,
+    "pcheckSBECommands": 0
+  }
 }
