@@ -43,6 +43,7 @@ function getFormat() {
     winston.format.errors({ stack: true }),
     winston.format.timestamp(),
     winston.format.printf((info) => {
+      // Creating custom console log because winston console transport cannot do this
       if (info.level === 'error') {
         console.error(info.timestamp, `${colorizeLevel(info.level)}:${' '.repeat(longestStr - info.level.length)}`, ...(info[SPLAT] || []));
       } else {
@@ -98,6 +99,7 @@ function formatLog(data: Array<any>) {
   return data.map((value) => (value instanceof Error ? value.stack : value)).join(' ');
 }
 
+// spreading data so it will be used as splat for raw data to use with console.log
 export default {
   error: (...data: Array<unknown>) => {
     logger.error(formatLog(data), ...data);
