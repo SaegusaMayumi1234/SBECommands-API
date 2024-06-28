@@ -19,7 +19,7 @@ const cachedAxios = setupCache(axios.create(), {
                 expire += 60 * 1000; // otherwise set to 1 minute for fail safe
               }
             } else if ((value.state === 'stale' && value.ttl) || (value.state === 'cached' && !canStale(value))) {
-              expire += value.ttl!;
+              expire = value.createdAt + value.ttl!;
             } else {
               expire += 60 * 1000; // otherwise set to 1 minute for fail safe
             }
