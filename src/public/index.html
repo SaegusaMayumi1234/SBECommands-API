@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>SBECommands API Documentation | IcarusPhantom</title>
+    <meta name="description" content="An API documentation website for SBECommands API" />
+    <meta property="og:title" content="SBECommands API" />
+    <meta property="og:description" content="An API documentation website for SBECommands API" />
+  </head>
+
+  <body>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+    <redoc id="docs"></redoc>
+
+    <script>
+      Redoc.init(
+        '/resources/json/apiDocs.json',
+        {
+          expandResponses: '200,400',
+        },
+        document.getElementById('docs'),
+      );
+    </script>
+  </body>
+</html>
