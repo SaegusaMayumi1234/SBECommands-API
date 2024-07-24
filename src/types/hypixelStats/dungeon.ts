@@ -1,4 +1,4 @@
-import { ExperienceCalculationResult } from '../common';
+import { IExperienceCalculationResult } from '../common';
 
 interface IDungeonBestScore {
   score: number;
@@ -31,15 +31,15 @@ export interface IDungeonFloors extends DungeonFloorsClass {}
 export type DungeonFloorsProps = Array<keyof IDungeonFloors>;
 
 interface IDungeonClass {
-  healer: ExperienceCalculationResult;
-  mage: ExperienceCalculationResult;
-  berserk: ExperienceCalculationResult;
-  archer: ExperienceCalculationResult;
-  tank: ExperienceCalculationResult;
+  healer: IExperienceCalculationResult;
+  mage: IExperienceCalculationResult;
+  berserk: IExperienceCalculationResult;
+  archer: IExperienceCalculationResult;
+  tank: IExperienceCalculationResult;
 }
 
 interface IDungeonCatacombs {
-  skill: ExperienceCalculationResult;
+  skill: IExperienceCalculationResult;
   highest_tier_completed: string | null;
   floors: IDungeonFloors;
   master_mode_floors: IDungeonFloors;
@@ -53,7 +53,7 @@ export interface IGetDungeons {
 }
 
 interface IDungeonSkill {
-  skill: ExperienceCalculationResult;
+  skill: IExperienceCalculationResult;
 }
 
 export interface IGetDungeonsLitePlayer {

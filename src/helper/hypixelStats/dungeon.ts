@@ -1,5 +1,5 @@
 import xp_tables from '../../constants/xp_tables';
-import { ExperienceCalculationResult } from '../../types/common';
+import { IExperienceCalculationResult } from '../../types/common';
 import {
   DungeonFloorsClass,
   IDungeonFloors,
@@ -18,7 +18,7 @@ const rankToScore = {
   'S+': 300,
 };
 
-function calcCatacombs(experience: number, infinite?: boolean): ExperienceCalculationResult {
+function calcCatacombs(experience: number, infinite?: boolean): IExperienceCalculationResult {
   const table = 'catacombs';
 
   if (experience <= 0) {
