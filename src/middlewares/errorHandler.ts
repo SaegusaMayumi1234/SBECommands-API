@@ -8,6 +8,7 @@ import ApiError from '../utils/apiError';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default (err: any, req: Request, res: Response, next: NextFunction) => {
   let { statusCode, message, code } = err;
+  const { otherData } = err;
 
   if (!(err instanceof ApiError)) {
     statusCode = httpStatus.INTERNAL_SERVER_ERROR;
@@ -21,6 +22,7 @@ export default (err: any, req: Request, res: Response, next: NextFunction) => {
     status: statusCode,
     code,
     reason: message,
+    ...(otherData !== undefined && { ...otherData }),
     ...(config.env === 'development' && !(err instanceof ApiError) && { stack: err.stack }),
   };
 
