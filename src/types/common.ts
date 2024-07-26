@@ -1,4 +1,4 @@
-export interface ExperienceCalculationResult {
+export interface IExperienceCalculationResult {
   xp: number;
   level: number;
   levelWithProgress: number;

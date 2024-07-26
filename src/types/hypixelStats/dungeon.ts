@@ -26,7 +26,19 @@ export class DungeonFloorsClass {
   floor_7?: IDungeonFloorsResult;
 }
 
+export class DungeonMasterModeFloorsClass {
+  floor_1?: IDungeonFloorsResult;
+  floor_2?: IDungeonFloorsResult;
+  floor_3?: IDungeonFloorsResult;
+  floor_4?: IDungeonFloorsResult;
+  floor_5?: IDungeonFloorsResult;
+  floor_6?: IDungeonFloorsResult;
+  floor_7?: IDungeonFloorsResult;
+}
+
 export interface IDungeonFloors extends DungeonFloorsClass {}
+
+export interface IDungeonMasterModeFloors extends DungeonMasterModeFloorsClass {}
 
 export type DungeonFloorsProps = Array<keyof IDungeonFloors>;
 
@@ -42,7 +54,7 @@ interface IDungeonCatacombs {
   skill: IExperienceCalculationResult;
   highest_tier_completed: string | null;
   floors: IDungeonFloors;
-  master_mode_floors: IDungeonFloors;
+  master_mode_floors: IDungeonMasterModeFloors;
 }
 
 export interface IGetDungeons {

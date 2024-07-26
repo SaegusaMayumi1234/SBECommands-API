@@ -7,6 +7,7 @@ import {
   IGetDungeons,
   IGetDungeonsLitePlayer,
   IGetDungeonsLiteCheck,
+  IDungeonMasterModeFloors,
 } from '../../types/hypixelStats/dungeon';
 import { toTitleCase } from '../../utils/stringCase';
 
@@ -100,7 +101,7 @@ export const getDungeons = function getDungeons(player: any, profile: any): IGet
     const { master_catacombs } = dungeons.dungeon_types;
 
     const floors: IDungeonFloors = {};
-    const master_mode_floors: IDungeonFloors = {};
+    const master_mode_floors: IDungeonMasterModeFloors = {};
 
     const floorNameList: DungeonFloorsProps = Object.keys(new DungeonFloorsClass()) as DungeonFloorsProps;
 
@@ -183,7 +184,7 @@ export const getDungeonsLiteCheck = function getDungeonsLiteCheck(player: any, p
     const { master_catacombs } = dungeons.dungeon_types;
 
     const floors: IDungeonFloors = {};
-    const master_mode_floors: IDungeonFloors = {};
+    const master_mode_floors: IDungeonMasterModeFloors = {};
 
     const floorNameList: DungeonFloorsProps = Object.keys(new DungeonFloorsClass()) as DungeonFloorsProps;
 
